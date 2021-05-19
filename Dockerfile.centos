@@ -1,0 +1,48 @@
+FROM centos:7
+
+ENV MAJOR=4
+ENV MINOR=34
+ENV BUILD_VER=9745
+ENV BUILD_REL=beta
+ENV TARGZ=v${MAJOR}.${MINOR}-${BUILD_VER}-${BUILD_REL}.tar.gz
+ENV SRCDIR=SoftEtherVPN_Stable-${MAJOR}.${MINOR}-${BUILD_VER}-${BUILD_REL}
+
+RUN yum -y groupinstall "Development Tools" \
+    && yum -y install \
+        ncurses-devel \
+        openssl-devel \
+        readline-devel \
+        rpmdevtools \
+        wget \
+    && adduser centos \
+    && wget https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/archive/refs/tags/${TARGZ} -O /tmp/${TARGZ}
+
+WORKDIR /tmp
+RUN tar zxvf ${TARGZ} \
+    && cd ${SRCDIR} \
+    && ./configure \
+    && make \
+    && make install
+
+USER centos
+RUN rpmdev-setuptree
+
+WORKDIR /home/centos
+COPY centos/SPECS/softethervpn.spec rpmbuild/SPECS/
+RUN cp -v /usr/bin/vpn* rpmbuild/SOURCES/ \
+    && cp -vR /tmp/${SRCDIR}/systemd rpmbuild/SOURCES/ \
+    && cat /tmp/${SRCDIR}/Makefile \
+    | sed \
+        -e "s/^INSTALL_BINDIR=/INSTALL_BINDIR=\$\(DESTDIR\)/" \
+        -e "s/^INSTALL_VPNSERVER_DIR=/INSTALL_VPNSERVER_DIR=\$\(DESTDIR\)/" \
+        -e "s/^INSTALL_VPNBRIDGE_DIR=/INSTALL_VPNBRIDGE_DIR=\$\(DESTDIR\)/" \
+        -e "s/^INSTALL_VPNCLIENT_DIR=/INSTALL_VPNCLIENT_DIR=\$\(DESTDIR\)/" \
+        -e "s/^INSTALL_VPNCMD_DIR=/INSTALL_VPNCMD_DIR=\$\(DESTDIR\)/" \
+        -e "s/\techo.*//" \
+        -e "s/\tchmod.*//" \
+    > rpmbuild/SOURCES/Makefile \
+    && cp /tmp/${TARGZ} rpmbuild/SOURCES/
+
+CMD ["rpmbuild", "-ba", "rpmbuild/SPECS/softethervpn.spec"]
+
+# vim: ft=dockerfile

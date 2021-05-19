@@ -1,7 +1,6 @@
 %define majorversion 4
-%define minorversion 19
-%define buildversion 9582
-%define dateversion 2015.10.06
+%define minorversion 34
+%define buildversion 9745
 %define buildrelease beta
 
 Name:           softethervpn
@@ -12,7 +11,7 @@ Summary:        An Open-Source Free Cross-platform Multi-protocol VPN Program
 Group:          Applications/Internet
 License:        GPLv2
 URL:            http://www.softether.org/
-Source0:        http://www.softether-download.com/files/softether/v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}-%{dateversion}-tree/Source_Code/softether-src-v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}.tar.gz
+Source0:        https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/archive/refs/tags/v%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}.tar.gz
 
 BuildRequires:  ncurses-devel
 BuildRequires:	openssl-devel
@@ -27,26 +26,22 @@ Requires(preun):	initscripts
 SoftEther VPN is one of the world's most powerful and easy-to-use multi-protocol VPN software. It runs on Windows, Linux, Mac, FreeBSD, and Solaris.
 
 %prep
-%setup -q -n v%{majorversion}.%{minorversion}-%{buildversion}
+%setup -q -n SoftEtherVPN_Stable-%{majorversion}.%{minorversion}-%{buildversion}-%{buildrelease}
 
 %build
-%ifarch i386 i686
-cp $RPM_SOURCE_DIR/linux_32bit.mak Makefile
-%else
-cp $RPM_SOURCE_DIR/linux_64bit.mak Makefile
-%endif
+cp $RPM_SOURCE_DIR/Makefile Makefile
 make
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 install -m 755 -d $RPM_BUILD_ROOT/usr/bin/
-install -m 755 -d $RPM_BUILD_ROOT/etc/rc.d/init.d
-install -m 755 $RPM_SOURCE_DIR/scripts/vpnserver $RPM_BUILD_ROOT/usr/bin/vpnserver
-install -m 755 $RPM_SOURCE_DIR/scripts/vpnbridge $RPM_BUILD_ROOT/usr/bin/vpnbridge
-install -m 755 $RPM_SOURCE_DIR/scripts/vpnclient $RPM_BUILD_ROOT/usr/bin/vpnclient
-install -m 755 $RPM_SOURCE_DIR/scripts/vpncmd $RPM_BUILD_ROOT/usr/bin/vpncmd
-install -m 755 $RPM_SOURCE_DIR/init.d/vpnserver $RPM_BUILD_ROOT/etc/rc.d/init.d/vpnserver
+#install -m 755 -d $RPM_BUILD_ROOT/etc/rc.d/init.d
+install -m 755 $RPM_SOURCE_DIR/vpnserver $RPM_BUILD_ROOT/usr/bin/vpnserver
+install -m 755 $RPM_SOURCE_DIR/vpnbridge $RPM_BUILD_ROOT/usr/bin/vpnbridge
+install -m 755 $RPM_SOURCE_DIR/vpnclient $RPM_BUILD_ROOT/usr/bin/vpnclient
+install -m 755 $RPM_SOURCE_DIR/vpncmd $RPM_BUILD_ROOT/usr/bin/vpncmd
+#install -m 755 $RPM_SOURCE_DIR/init.d/vpnserver $RPM_BUILD_ROOT/etc/rc.d/init.d/vpnserver
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -69,11 +64,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_usr}/vpnbridge/
 %{_usr}/vpnclient/
 %{_usr}/vpncmd/
-%{_initddir}/vpnserver
+#%{_initddir}/vpnserver
 %doc AUTHORS.TXT BUILD_UNIX.TXT BUILD_WINDOWS.TXT ChangeLog ChangeLog.txt LICENSE LICENSE.TXT README README.TXT THIRD_PARTY.TXT WARNING.TXT
 
 %post
-/sbin/chkconfig --add vpnserver
+##/sbin/chkconfig --add vpnserver
 
 #%postun
 #if [ "$1" -ge "1" ]; then
@@ -81,10 +76,10 @@ rm -rf $RPM_BUILD_ROOT
 #fi
 
 %preun
-if [ $1 -eq 0 ]; then
-	/sbin/service vpnserver stop >/dev/null 2>&1
-	/sbin/chkconfig --del vpnserver
-fi
+##if [ $1 -eq 0 ]; then
+##	/sbin/service vpnserver stop >/dev/null 2>&1
+##	/sbin/chkconfig --del vpnserver
+##fi
 
 %changelog
 * Wed Sep 30 2015 Jeff Tang <mrjefftang@gmail.com> - 4.19.9582-1
