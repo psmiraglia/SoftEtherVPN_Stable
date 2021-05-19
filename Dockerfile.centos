@@ -30,7 +30,9 @@ RUN rpmdev-setuptree
 WORKDIR /home/centos
 COPY centos/SPECS/softethervpn.spec rpmbuild/SPECS/
 RUN cp -v /usr/bin/vpn* rpmbuild/SOURCES/ \
-    && cp -vR /tmp/${SRCDIR}/systemd rpmbuild/SOURCES/ \
+    && sed -e "s/opt/usr/g" /tmp/${SRCDIR}/systemd/softether-vpnbridge.service > rpmbuild/SOURCES/softether-vpnbridge.service \
+    && sed -e "s/opt/usr/g" /tmp/${SRCDIR}/systemd/softether-vpnclient.service > rpmbuild/SOURCES/softether-vpnclient.service \
+    && sed -e "s/opt/usr/g" /tmp/${SRCDIR}/systemd/softether-vpnserver.service > rpmbuild/SOURCES/softether-vpnserver.service \
     && cat /tmp/${SRCDIR}/Makefile \
     | sed \
         -e "s/^INSTALL_BINDIR=/INSTALL_BINDIR=\$\(DESTDIR\)/" \

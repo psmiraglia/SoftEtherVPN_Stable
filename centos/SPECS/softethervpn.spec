@@ -16,6 +16,7 @@ Source0:        https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/archive/refs
 BuildRequires:  ncurses-devel
 BuildRequires:	openssl-devel
 BuildRequires:	readline-devel
+BuildRequires:	systemd
 
 Requires(post):		chkconfig
 Requires(postun):	initscripts
@@ -36,12 +37,14 @@ make
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 install -m 755 -d $RPM_BUILD_ROOT/usr/bin/
-#install -m 755 -d $RPM_BUILD_ROOT/etc/rc.d/init.d
+install -m 755 -d %{buildroot}%{_unitdir}
 install -m 755 $RPM_SOURCE_DIR/vpnserver $RPM_BUILD_ROOT/usr/bin/vpnserver
 install -m 755 $RPM_SOURCE_DIR/vpnbridge $RPM_BUILD_ROOT/usr/bin/vpnbridge
 install -m 755 $RPM_SOURCE_DIR/vpnclient $RPM_BUILD_ROOT/usr/bin/vpnclient
 install -m 755 $RPM_SOURCE_DIR/vpncmd $RPM_BUILD_ROOT/usr/bin/vpncmd
-#install -m 755 $RPM_SOURCE_DIR/init.d/vpnserver $RPM_BUILD_ROOT/etc/rc.d/init.d/vpnserver
+install -m 755 %{_sourcedir}/softether-vpnbridge.service %{buildroot}%{_unitdir}/softether-vpnbridge.service
+install -m 755 %{_sourcedir}/softether-vpnclient.service %{buildroot}%{_unitdir}/softether-vpnclient.service
+install -m 755 %{_sourcedir}/softether-vpnserver.service %{buildroot}%{_unitdir}/softether-vpnserver.service
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -64,6 +67,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_usr}/vpnbridge/
 %{_usr}/vpnclient/
 %{_usr}/vpncmd/
+%{_unitdir}/softether-vpnbridge.service
+%{_unitdir}/softether-vpnclient.service
+%{_unitdir}/softether-vpnserver.service
 #%{_initddir}/vpnserver
 %doc AUTHORS.TXT BUILD_UNIX.TXT BUILD_WINDOWS.TXT ChangeLog ChangeLog.txt LICENSE LICENSE.TXT README README.TXT THIRD_PARTY.TXT WARNING.TXT
 
